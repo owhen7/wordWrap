@@ -7,6 +7,9 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <dirent.h>
 #define DEBUG 1
 #define BUFSIZE 10
 
