@@ -1,0 +1,10 @@
+CC=gcc
+CFLAGS= -Wall -Werror
+DEPS = wwheader.h
+OBJ = wwheader.o ww.o 
+
+%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+ww: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
