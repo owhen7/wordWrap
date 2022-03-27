@@ -40,7 +40,7 @@ int main(int argc, char **argv)
 	if(isDirectory(nameOfFile) == 0) // If the file is not a folder, it should be a text file.
 	{
 		//If the file is a text file, we should call wordWrap on it one time and then we're done.
-		wordWrapTextFile(nameOfFile, pageWidth, 0); 
+		wordWrapTextFile(nameOfFile, pageWidth); 
 	}
 	
 	return EXIT_SUCCESS;
@@ -54,7 +54,7 @@ int isDirectory(const char *path)
 	return S_ISDIR(statbuf.st_mode); //Return a 1 if it is a directory.
 }
 
-void wordWrapTextFile(char* argument2, int wrapWidth)
+void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the name of the file (that the user gave us).
 {
 	
 	int fd, fd2, bytes;
