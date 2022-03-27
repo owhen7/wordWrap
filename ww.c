@@ -30,7 +30,6 @@ int main(int argc, char **argv)
 				{
 					printf("%s\n", dir->d_name); //Print it out for debug purposes, 
 					wordWrapTextFile(dir->d_name, pageWidth); 
-					i++;
 				}
 			}
 			closedir(d);
