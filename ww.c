@@ -69,41 +69,15 @@ void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the na
 		    return;
 		}
 	    //remember to check argc length back in main at some point.
-	  //  if (argc > 2)
-
-	  //  else
-	  //  {
-	//	fd = 0;
-	  //  }
-
-	//printf("%d\n",argc);
-	//printf("%s\n",argv[0]);
-	//printf("%s\n",argv[1]);
-	//printf("%s\n",argv[2]);
-
-
-	const int newLineASCII = 10;
-
-
-    /*struct stat fileStat;
-fstat(fd, &fileStat); */// Don't forget to check for an error return in real code
-// Allocate enough to hold the whole contents plus a '\0' char.
-
-
 
     char *buff = malloc(INT_MAX);
     char *nfile;
     int start, pos, prevIndex;
 
-
-    //for(int k=0;k<INT_MAX;k++){
             prevIndex = 0;
             nfile=NULL;
             int crntlen = 0;
             while ((bytes = read(fd,buff,1)) > 0) {
-
-            //printf("Read %d bytes\n", bytes);
-            //printf("%s\n",buff);
             for(pos = 0; pos < bytes; pos++){
                     if((buff[pos] == ' ')){
                         if(prevIndex>1){
@@ -119,7 +93,6 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
                     else {
                             if(buff[pos] == '\n')
                         {
-                        //printf("%d\n",prevIndex);
                         if(prevIndex>1){
                             if(!((nfile[prevIndex-1] == ' ')||((nfile[prevIndex-1] == '\n')&&(nfile[prevIndex-2] == '\n'))))
                             {
@@ -127,9 +100,6 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
                                memcpy(&nfile[prevIndex],&buff[pos],1);
                                crntlen += 1;
                                prevIndex++;
-                               /*nfile[prevIndex+1] = '\0';
-                               crntlen += 1;
-                               prevIndex+=2;*/
                             }
                             }
                         }
@@ -146,15 +116,12 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
                     }
 
             }
-            nfile[prevIndex] = '\0';
-
-            for (int i = 0; i < crntlen; ++i) {
-                printf("%c\n", nfile[i]);
-            }
-    printf("\nCurrent Length: %d\n",crntlen);
-            printf("Current prevIndex: %d\n",prevIndex);
+            nfile = realloc(nfile, 1+crntlen);
+            nfile[prevIndex] = '\n';
+            crntlen += 1;
 
     close(fd);
+if(isDirectory(argument2)){
 
     const char * prefix = "wrap.";
     int needed = strlen( argument2 ) + strlen( prefix ) + 1;
@@ -169,6 +136,7 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
             perror(filename);
             return;
         }
+}
     int exppos=0;
     int wordstart = 0;
     int wordend;
@@ -176,39 +144,50 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
     char *newlinechar;
     newlinechar = malloc(5);
     *newlinechar = '\n';
-    for(int k=0;k<prevIndex;k++){
+
+    printf("\nTHE OUTPUT IS: \n");
+    for(int k=0;k<crntlen;k++){
         if(nfile[k] == ' ' || nfile[k] == '\n'){
             wordend = k;
             wordlen = wordend-wordstart+1;
             exppos += wordlen;
-            if(exppos>=wrapWidth){
+            if((exppos-1)>=wrapWidth){
                 exppos = wordlen;
+                if(isDirectory(argument2)){
                 bytes = write(fd2,newlinechar,1);
                 if (bytes == -1)
                 {
-                    printf("error1");
-                    perror(&newlinechar[0]);
+                    perror(argument2);
                     return;
                 }
                 bytes = write(fd2,&nfile[wordstart],wordlen);
                 if (bytes == -1)
                 {
 
-                    printf("error2");
-                    perror(&nfile[wordstart]);
+                    perror(argument2);
                     return;
+                }
+                }
+                else{
+                printf("\n");
+                for(bytes = 0; bytes<wordlen;bytes++)
+                printf("%c",nfile[wordstart+bytes]);
                 }
                 wordstart += wordlen;
             }
             else{
+                if(isDirectory(argument2)){
                 bytes = write(fd2,&nfile[wordstart],wordlen);
                 if (bytes == -1)
                 {
 
-                    printf("error3-wordstart: %d",wordstart);
-                    printf("error3-wordlen: %d",wordlen);
-                    perror(filename);
+                    perror(argument2);
                     return;
+                }
+                }
+                else{
+                    for(bytes = 0; bytes<wordlen;bytes++)
+                    printf("%c",nfile[wordstart+bytes]);
                 }
                 wordstart += wordlen;
             }
@@ -218,6 +197,7 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
     //bytes = write(fd2, nfile, prevIndex);
     close(fd2);
     free(buff);
+    free(newlinechar);
     free(nfile);
 }
 
