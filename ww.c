@@ -13,6 +13,14 @@ int main(int argc, char **argv)
 	//First, we need to check whether the user has specified a text file or a directory.
 	printf("isDirectory is %d.\n", isDirectory(nameOfFile));
 
+	
+	//If the initial file that the user gave us was just a text file,
+	if(isDirectory(nameOfFile) == 0) // If the file is not a folder, it should be a text file.
+	{
+		//If the file is a text file, we should call wordWrap on it one time and then we're done.
+		wordWrapTextFile(nameOfFile, pageWidth);
+	}
+	
 	//If the file is a directory, we should call wordWrap on all of the text files inside of it.
 	if(isDirectory(nameOfFile) == 1)
 	{
@@ -25,22 +33,18 @@ int main(int argc, char **argv)
 		{
 			while ((dir = readdir(d)) != NULL) //Iterate through all of the files (including folders) in the sub-directory
 			{
-
+				printf("%s\n", dir->d_name);
 				if(isDirectory(dir->d_name) == 0) //If the file is not a folder, it should be a text file.
 				{
-					printf("%s\n", dir->d_name); //Print it out for debug purposes,
-					wordWrapTextFile(dir->d_name, pageWidth);
+					if(strstr(dir->d_name, "wrap.") == NULL) //if the string doesn't contain "wrap."
+					{
+						printf("%s\n", dir->d_name); //Print it out for debug purposes,
+						wordWrapTextFile(dir->d_name, pageWidth);
+					}
 				}
 			}
 			closedir(d);
 		}
-	}
-
-	//If the initial file that the user gave us was just a text file,
-	if(isDirectory(nameOfFile) == 0) // If the file is not a folder, it should be a text file.
-	{
-		//If the file is a text file, we should call wordWrap on it one time and then we're done.
-		wordWrapTextFile(nameOfFile, pageWidth);
 	}
 
 	return EXIT_SUCCESS;
@@ -50,7 +54,7 @@ int isDirectory(const char *path)
 {
 	struct stat statbuf;
 	if (stat(path, &statbuf) != 0)
-	return 0; //Returns 0 if the file is not a directory.
+		return 0; //Returns 0 if the file is not a directory.
 	return S_ISDIR(statbuf.st_mode); //Return a 1 if it is a directory.
 }
 
@@ -64,7 +68,6 @@ void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the na
 		    perror(argument2);
 		    return;
 		}
-
 	    //remember to check argc length back in main at some point.
 	  //  if (argc > 2)
 
