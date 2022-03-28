@@ -13,4 +13,7 @@
 #define DEBUG 1
 #define BUFSIZE 10
 
+int isDirectory(const char *path);
+void wordWrapTextFile(char* argument2, int wrapWidth);
+
 #endif

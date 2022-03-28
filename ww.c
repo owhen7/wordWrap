@@ -7,16 +7,16 @@ int main(int argc, char **argv)
 	strcpy(nameOfFile, argv[2]); //Put argv[2] into it.
 
 	printf("Here is the nameOfFile:%s.\n", nameOfFile); //Print out the string we are calling wordWrapTextFile on.
-		
+
 	int pageWidth = atoi(argv[1]); //This is the width of the page.
-		
+
 	//First, we need to check whether the user has specified a text file or a directory.
 	printf("isDirectory is %d.\n", isDirectory(nameOfFile));
-	
+
 	//If the file is a directory, we should call wordWrap on all of the text files inside of it.
 	if(isDirectory(nameOfFile) == 1)
 	{
-		
+
 		DIR *d;
 		struct dirent *dir;
 		d = opendir(nameOfFile);
@@ -25,63 +25,63 @@ int main(int argc, char **argv)
 		{
 			while ((dir = readdir(d)) != NULL) //Iterate through all of the files (including folders) in the sub-directory
 			{
-				
+
 				if(isDirectory(dir->d_name) == 0) //If the file is not a folder, it should be a text file.
 				{
-					printf("%s\n", dir->d_name); //Print it out for debug purposes, 
-					wordWrapTextFile(dir->d_name, pageWidth); 
+					printf("%s\n", dir->d_name); //Print it out for debug purposes,
+					wordWrapTextFile(dir->d_name, pageWidth);
 				}
 			}
 			closedir(d);
 		}
 	}
-	
+
 	//If the initial file that the user gave us was just a text file,
 	if(isDirectory(nameOfFile) == 0) // If the file is not a folder, it should be a text file.
 	{
 		//If the file is a text file, we should call wordWrap on it one time and then we're done.
-		wordWrapTextFile(nameOfFile, pageWidth); 
+		wordWrapTextFile(nameOfFile, pageWidth);
 	}
-	
+
 	return EXIT_SUCCESS;
 }
 
 int isDirectory(const char *path)
 {
 	struct stat statbuf;
-	if (stat(path, &statbuf) != 0) 
+	if (stat(path, &statbuf) != 0)
 	return 0; //Returns 0 if the file is not a directory.
 	return S_ISDIR(statbuf.st_mode); //Return a 1 if it is a directory.
 }
 
 void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the name of the file (that the user gave us).
 {
-	
+
 	int fd, fd2, bytes;
 	fd = open(argument2, O_RDONLY);
 	if(fd == -1)
 		{
 		    perror(argument2);
-		    return EXIT_FAILURE;
+		    return;
 		}
-	    
+
 	    //remember to check argc length back in main at some point.
-	  //  if (argc > 2) 
-	
+	  //  if (argc > 2)
+
 	  //  else
 	  //  {
 	//	fd = 0;
 	  //  }
-	    
+
 	//printf("%d\n",argc);
 	//printf("%s\n",argv[0]);
 	//printf("%s\n",argv[1]);
 	//printf("%s\n",argv[2]);
 
-	
+
 	const int newLineASCII = 10;
-    
-    
+
+
     /*struct stat fileStat;
 fstat(fd, &fileStat); */// Don't forget to check for an error return in real code
 // Allocate enough to hold the whole contents plus a '\0' char.
@@ -92,7 +92,7 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
     char *nfile;
     int start, pos, prevIndex;
 
-    
+
     //for(int k=0;k<INT_MAX;k++){
             prevIndex = 0;
             nfile=NULL;
@@ -163,13 +163,13 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
     if (fd2 == -1)
         {
             perror(filename);
-            return EXIT_FAILURE;
+            return;
         }
     bytes = write(fd2, nfile, prevIndex);
     if (bytes == -1)
     {
             perror(filename);
-            return EXIT_FAILURE;
+            return;
     }
     close(fd2);
     free(buff);
@@ -177,5 +177,4 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
 }
 
 
-   
 
