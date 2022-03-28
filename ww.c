@@ -13,14 +13,14 @@ int main(int argc, char **argv)
 	//First, we need to check whether the user has specified a text file or a directory.
 	printf("isDirectory is %d.\n", isDirectory(nameOfFile));
 
-	
+
 	//If the initial file that the user gave us was just a text file,
 	if(isDirectory(nameOfFile) == 0) // If the file is not a folder, it should be a text file.
 	{
 		//If the file is a text file, we should call wordWrap on it one time and then we're done.
 		wordWrapTextFile(nameOfFile, pageWidth);
 	}
-	
+
 	//If the file is a directory, we should call wordWrap on all of the text files inside of it.
 	if(isDirectory(nameOfFile) == 1)
 	{
@@ -121,7 +121,7 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
                         {
                         //printf("%d\n",prevIndex);
                         if(prevIndex>1){
-                            if(!((nfile[prevIndex-1] == ' ')||((nfile[prevIndex-1] == '\n'))))
+                            if(!((nfile[prevIndex-1] == ' ')||((nfile[prevIndex-1] == '\n')&&(nfile[prevIndex-2] == '\n'))))
                             {
                                nfile = realloc(nfile, 1+crntlen+1);
                                memcpy(&nfile[prevIndex],&buff[pos],1);
@@ -146,6 +146,7 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
                     }
 
             }
+            nfile[prevIndex] = '\0';
 
             for (int i = 0; i < crntlen; ++i) {
                 printf("%c\n", nfile[i]);
@@ -168,16 +169,56 @@ fstat(fd, &fileStat); */// Don't forget to check for an error return in real cod
             perror(filename);
             return;
         }
-    bytes = write(fd2, nfile, prevIndex);
-    if (bytes == -1)
-    {
-            perror(filename);
-            return;
+    int exppos=0;
+    int wordstart = 0;
+    int wordend;
+    int wordlen;
+    char *newlinechar;
+    newlinechar = malloc(5);
+    *newlinechar = '\n';
+    for(int k=0;k<prevIndex;k++){
+        if(nfile[k] == ' ' || nfile[k] == '\n'){
+            wordend = k;
+            wordlen = wordend-wordstart+1;
+            exppos += wordlen;
+            if(exppos>=wrapWidth){
+                exppos = wordlen;
+                bytes = write(fd2,newlinechar,1);
+                if (bytes == -1)
+                {
+                    printf("error1");
+                    perror(&newlinechar[0]);
+                    return;
+                }
+                bytes = write(fd2,&nfile[wordstart],wordlen);
+                if (bytes == -1)
+                {
+
+                    printf("error2");
+                    perror(&nfile[wordstart]);
+                    return;
+                }
+                wordstart += wordlen;
+            }
+            else{
+                bytes = write(fd2,&nfile[wordstart],wordlen);
+                if (bytes == -1)
+                {
+
+                    printf("error3-wordstart: %d",wordstart);
+                    printf("error3-wordlen: %d",wordlen);
+                    perror(filename);
+                    return;
+                }
+                wordstart += wordlen;
+            }
+
+        }
     }
+    //bytes = write(fd2, nfile, prevIndex);
     close(fd2);
     free(buff);
     free(nfile);
 }
-
 
 
