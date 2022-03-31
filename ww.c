@@ -1,6 +1,8 @@
 #include "wwheader.h"
 #include "limits.h"
 
+int boolDirectory;
+
 int main(int argc, char **argv)
 {
 	char nameOfFile[30]; //Declare an array of max length 30 for the file name. This could be changed to be bigger.
@@ -11,7 +13,8 @@ int main(int argc, char **argv)
 	int pageWidth = atoi(argv[1]); //This is the width of the page.
 
 	//First, we need to check whether the user has specified a text file or a directory.
-	printf("isDirectory is %d.\n", isDirectory(nameOfFile));
+//	printf("isDirectory is %d.\n", isDirectory(nameOfFile));
+    boolDirectory = isDirectory(nameOfFile);
 
 
 	//If the initial file that the user gave us was just a text file,
@@ -50,23 +53,19 @@ int main(int argc, char **argv)
 	return EXIT_SUCCESS;
 }
 
-int isDirectory(const char *path)
+int wordWrapTextFile(char* argument2, int wrapWidth) //nameOfFile is just the name of the file (that the user gave us).
 {
-	struct stat statbuf;
-	if (stat(path, &statbuf) != 0)
-		return 0; //Returns 0 if the file is not a directory.
-	return S_ISDIR(statbuf.st_mode); //Return a 1 if it is a directory.
-}
+    char nameOfFile[30]; //Declare an array of max length 30 for the file name. This could be changed to be bigger.
+	strcpy(nameOfFile, argument2); //Put argv[2] into it.
 
-void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the name of the file (that the user gave us).
-{
+printf("\nIS IT A DIRECTORY: %d\n",boolDirectory);
 
 	int fd, fd2, bytes;
-	fd = open(argument2, O_RDONLY);
+	fd = open(nameOfFile, O_RDONLY);
 	if(fd == -1)
 		{
-		    perror(argument2);
-		    return;
+		    perror(nameOfFile);
+		    return EXIT_FAILURE;
 		}
 	    //remember to check argc length back in main at some point.
 
@@ -77,7 +76,7 @@ void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the na
             prevIndex = 0;
             nfile=NULL;
             int crntlen = 0;
-            while ((bytes = read(fd,buff,1)) > 0) {
+            while ((bytes = read(fd,buff,BUFSIZE)) > 0) {
             for(pos = 0; pos < bytes; pos++){
                     if((buff[pos] == ' ')){
                         if(prevIndex>1){
@@ -121,20 +120,20 @@ void wordWrapTextFile(char* argument2, int wrapWidth) //Argument2 is just the na
             crntlen += 1;
 
     close(fd);
-if(isDirectory(argument2)){
+if(boolDirectory==1){
 
     const char * prefix = "wrap.";
-    int needed = strlen( argument2 ) + strlen( prefix ) + 1;
+    int needed = strlen( nameOfFile ) + strlen( prefix ) + 1;
 
     char filename[needed];
 
     strcpy( filename, prefix );
-    strcat( filename, argument2 );
+    strcat( filename, nameOfFile );
     fd2 = open(filename, O_RDWR|O_CREAT, 0777);
     if (fd2 == -1)
         {
             perror(filename);
-            return;
+            return EXIT_FAILURE;
         }
 }
     int exppos=0;
@@ -144,8 +143,8 @@ if(isDirectory(argument2)){
     char *newlinechar;
     newlinechar = malloc(5);
     *newlinechar = '\n';
-
-    printf("\nTHE OUTPUT IS: \n");
+    if(boolDirectory==0)
+    printf("\nTHE OUTPUT IS: \n\n");
     for(int k=0;k<crntlen;k++){
         if(nfile[k] == ' ' || nfile[k] == '\n'){
             wordend = k;
@@ -153,19 +152,19 @@ if(isDirectory(argument2)){
             exppos += wordlen;
             if((exppos-1)>=wrapWidth){
                 exppos = wordlen;
-                if(isDirectory(argument2)){
+                if(boolDirectory==1){
                 bytes = write(fd2,newlinechar,1);
                 if (bytes == -1)
                 {
-                    perror(argument2);
-                    return;
+                    perror(nameOfFile);
+                    return EXIT_FAILURE;
                 }
                 bytes = write(fd2,&nfile[wordstart],wordlen);
                 if (bytes == -1)
                 {
 
-                    perror(argument2);
-                    return;
+                    perror(nameOfFile);
+                    return EXIT_FAILURE;
                 }
                 }
                 else{
@@ -176,13 +175,13 @@ if(isDirectory(argument2)){
                 wordstart += wordlen;
             }
             else{
-                if(isDirectory(argument2)){
+                if(boolDirectory==1){
                 bytes = write(fd2,&nfile[wordstart],wordlen);
                 if (bytes == -1)
                 {
 
-                    perror(argument2);
-                    return;
+                    perror(nameOfFile);
+                    return EXIT_FAILURE;
                 }
                 }
                 else{
@@ -199,6 +198,17 @@ if(isDirectory(argument2)){
     free(buff);
     free(newlinechar);
     free(nfile);
+
+    return EXIT_SUCCESS;
 }
+
+int isDirectory(const char *path)
+{
+	struct stat statbuf;
+	if (stat(path, &statbuf) != 0)
+		return 0; //Returns 0 if the file is not a directory.
+	return S_ISDIR(statbuf.st_mode); //Return a 1 if it is a directory.
+}
+
 
 
