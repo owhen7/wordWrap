@@ -1,11 +1,20 @@
-By Owen Wexler (osw9) and Huzaif Mansuri (Your netID)
+By Owen Wexler (osw9) and Huzaif Mansuri (htm23)
+
+We tested our program by 
 
 
 
-A description of our testing Strategy:
+- calling it with only an integer and then entering standard input. It prints to the terminal.
+./ww 50
 
-We did not test yet.
 
+- calling it on a subdirectory, so it produces .wrap files inside the same folder.
+
+./ww 30 subfolder
+
+ - calling it on a single file, where it prints to the terminal.
+
+./ww 60 sampletextfile
 
 
 
