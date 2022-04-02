@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS= -Wall -Werror
+CFLAGS= -Wall -Werror -fsanitize=address,undefined
 DEPS = wwheader.h
 OBJ = wwheader.o ww.o 
 
